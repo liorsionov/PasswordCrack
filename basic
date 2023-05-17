@@ -1,0 +1,71 @@
+import random
+import time
+
+real_password = str(random.randint(0, 1000000))
+
+
+def check_password(password):
+    """
+    Server's validation code, don't touch
+    """
+    if len(password) != len(real_password):
+        return False
+    for x, y in zip(password, real_password):
+        time.sleep(0.1)
+        if x != y:
+            return False
+    return True
+
+
+def check_password_with_time(password):
+    """
+    Runs the `check_password` method and also returns the time of run
+    """
+    start_time = time.time()
+    res = check_password(password)
+    end_time = time.time()
+    time_elapsed = end_time - start_time
+    return res, time_elapsed
+
+
+def get_password_length():
+    """
+    Cracks and returns the length of the real password
+    """
+    password_length = 1
+    while True:
+        password = '1' * password_length
+        res, elapsed_time = check_password_with_time(password)
+        if elapsed_time < 0.1:
+            password_length += 1
+        else:
+            break
+    return password_length
+
+
+def crack_password():
+    password_length = get_password_length()
+    possible_numbers = range(10)
+    real_password = ''  # start as empty string because we don't know the password
+    for index in range(password_length):
+        for number in possible_numbers:
+            number = str(number)
+            current_password = real_password
+            current_password += number
+            current_password += '0' * (password_length - index - 1)
+            res, elapsed_time = check_password_with_time(current_password)
+            if res:
+                return current_password
+            if int(elapsed_time / 0.1) >= index + 2:
+                real_password += number
+                break
+
+
+if __name__ == '__main__':
+    print(f"Real password is: {real_password}")
+
+    start_time = time.time()
+    cracked_password = crack_password()
+    end_time = time.time()
+
+    print(f'I cracked the password: {cracked_password} in {int(end_time - start_time)} seconds')
